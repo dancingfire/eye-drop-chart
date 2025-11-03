@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin routes - require superuser
-Route::prefix('admin')->middleware(['auth', 'superuser'])->group(function () {
+Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\EnsureSuperuser::class])->group(function () {
     // Medication management
     Route::get('medications', [MedicationController::class, 'index'])->name('medications.index');
     Route::get('medications/create', [MedicationController::class, 'create'])->name('medications.create');

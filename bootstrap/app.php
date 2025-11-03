@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'superuser' => \App\Http\Middleware\EnsureSuperuser::class,
         ]);
+        
+        // Also register as route middleware for Laravel 11/12
+        $middleware->web(append: [
+            // web middleware
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

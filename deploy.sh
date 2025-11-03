@@ -4,7 +4,7 @@
 echo "Starting deployment..."
 
 # Only run migrations and clear cache
-php artisan migrate --force
+ --force
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
