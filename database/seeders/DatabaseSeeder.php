@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,14 +18,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $now = Carbon::now();
+        
+        // Create default superuser
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'company_name' => 'Southeast Wellness Pharmacy',
+            'is_superuser' => true,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
-         $now = Carbon::now();
+        // Seed medications
         $meds = [
             ['name' => 'Latanoprost (Xalatan)', 'notes' => 'Evening'],
             ['name' => 'Timolol 0.5% (Timoptic)', 'notes' => 'Morning/Evening'],
@@ -41,6 +50,4 @@ class DatabaseSeeder extends Seeder
             ]));
         }
     }
-
-    
 }

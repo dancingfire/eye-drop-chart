@@ -1,42 +1,12 @@
 #!/bin/bash
-# Cloudways Deployment Script
-# Add this to Application Settings → Deployment via Git → Deployment Script Path
+# Minimal Cloudways Deployment Script
 
-echo "🚀 Starting deployment..."
+echo "Starting deployment..."
 
-# Backup .env file before git operations
-if [ -f .env ]; then
-    echo "💾 Backing up .env file..."
-    cp .env .env.backup
-fi
-
-# If .env doesn't exist, create from example
- Install dependencies
-echo "📦 Installing Composer dependencies..."
-composer install --no-dev --optimize-autoloader --no-interaction
-
-# Run migrations
-echo "🗄️  Running database migrations..."
+# Only run migrations and clear cache
 php artisan migrate --force
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
 
-# Clear and cache config
-echo "⚙️  Optimizing configuration..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Ensure storage link exists
-echo "🔗 Creating storage symlink..."
-php artisan storage:link
-
-# Set permissions
-echo "🔐 Setting permissions..."
-chmod -R 755 storage bootstrap/cache
-
-# Restore .env if it was overwritten
-if [ -f .env.backup ] && [ ! -s .env ]; then
-    echo "🔄 Restoring .env file..."
-    cp .env.backup .env
-fi
-
-echo "✅ Deployment complete!"
+echo "Deployment complete!"

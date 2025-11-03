@@ -65,7 +65,8 @@ class ChartController extends Controller
         'meds'=>$meds,
         'days'=>$days,
         'start'=>$start,
-        'surgeryDate'=>$surgeryDate
+        'surgeryDate'=>$surgeryDate,
+        'user'=>auth()->user()
     ])->setPaper('letter','landscape');
 
     return $pdf->download('eye-drop-chart-'.$start->format('Ymd').'.pdf');
@@ -122,7 +123,8 @@ public function htmlchart(Request $request){
         'meds'=>$meds,
         'days'=>$days,
         'start'=>$start,
-        'surgeryDate'=>$surgeryDate
+        'surgeryDate'=>$surgeryDate,
+        'user'=>auth()->user()
     ]);
 }
 }

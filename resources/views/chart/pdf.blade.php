@@ -66,8 +66,19 @@ th {
 </style>
 </head>
 <body>
-<h2 style="text-align:center;">Eye Drop Chart - Southeast Wellness Pharmacy [X = No Drops]</h2>
-<div style="text-align: center; margin-top: -15px">204-346-1970</div>
+@php
+    $companyName = $user->company_name ?? 'Southeast Wellness Pharmacy';
+    $companyPhone = '204-346-1970'; // Could also be a user field if needed
+@endphp
+
+@if($user->logo_path)
+<div style="text-align: center; margin-bottom: 10px;">
+    <img src="{{ public_path('storage/' . $user->logo_path) }}" alt="Logo" style="max-height: 60px; max-width: 200px;">
+</div>
+@endif
+
+<h2 style="text-align:center;">Eye Drop Chart - {{ $companyName }} [X = No Drops]</h2>
+<div style="text-align: center; margin-top: -15px">{{ $companyPhone }}</div>
 @if($surgeryDate)
 <div style="text-align: center; margin-top: 5px; font-weight: bold;">Surgery Date: {{ $surgeryDate->format('l, F j, Y') }}</div>
 @endif
