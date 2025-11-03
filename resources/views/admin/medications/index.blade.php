@@ -1,8 +1,10 @@
 @extends('layouts.app')
+@section('title','My Medications')
 
 @section('content')
-<div class="container">
-    <h1>Medications</h1>
+<div class="container py-5">
+    <h1>My Medications</h1>
+    <p class="text-muted">Manage your personal medication library for building eye drop charts.</p>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

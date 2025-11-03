@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         $now = Carbon::now();
         
         // Create default superuser
-        User::create([
+        $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'updated_at' => $now,
         ]);
 
-        // Seed medications
+        // Seed medications for admin user
         $meds = [
             ['name' => 'Latanoprost (Xalatan)', 'notes' => 'Evening'],
             ['name' => 'Timolol 0.5% (Timoptic)', 'notes' => 'Morning/Evening'],
@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($meds as $m) {
             DB::table('medications')->insert(array_merge($m, [
+                'user_id' => $admin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ]));

@@ -9,7 +9,9 @@ class TemplateController extends Controller
 {
     public function index()
     {
-        $templates = ScheduleTemplate::orderBy('name')->get();
+        $templates = ScheduleTemplate::where('user_id', auth()->id())
+            ->orderBy('name')
+            ->get();
         return response()->json($templates);
     }
 
@@ -25,6 +27,7 @@ class TemplateController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'template_data' => $request->template_data,
+            'user_id' => auth()->id(),
         ]);
 
         return response()->json([
@@ -36,13 +39,15 @@ class TemplateController extends Controller
 
     public function show($id)
     {
-        $template = ScheduleTemplate::findOrFail($id);
+        $template = ScheduleTemplate::where('user_id', auth()->id())
+            ->findOrFail($id);
         return response()->json($template);
     }
 
     public function destroy($id)
     {
-        $template = ScheduleTemplate::findOrFail($id);
+        $template = ScheduleTemplate::where('user_id', auth()->id())
+            ->findOrFail($id);
         $template->delete();
 
         return response()->json([

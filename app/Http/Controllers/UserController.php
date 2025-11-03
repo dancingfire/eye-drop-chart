@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Medication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,7 @@ class UserController extends Controller
             $logoPath = $request->file('logo')->store('logos', 'public');
         }
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -54,6 +55,9 @@ class UserController extends Controller
             'logo_path' => $logoPath,
             'is_superuser' => $request->boolean('is_superuser'),
         ]);
+
+        // Seed default medications for new user
+        $this->seedMedicationsForUser($user);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -126,5 +130,30 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    /**
+     * Seed default medications for a new user.
+     */
+    private function seedMedicationsForUser(User $user)
+    {
+        $defaultMedications = [
+            ['name' => 'Latanoprost (Xalatan)', 'notes' => 'Evening'],
+            ['name' => 'Timolol 0.5% (Timoptic)', 'notes' => 'Morning/Evening'],
+            ['name' => 'Dorzolamide (Trusopt)', 'notes' => 'TID'],
+            ['name' => 'Brimonidine (Alphagan)', 'notes' => 'BID'],
+            ['name' => 'Tobramycin', 'notes' => 'Antibiotic'],
+            ['name' => 'Moxifloxacin', 'notes' => 'Antibiotic'],
+            ['name' => 'Artificial tears', 'notes' => 'PRN'],
+            ['name' => 'Prednisolone (steroid)', 'notes' => 'Per Rx'],
+        ];
+
+        foreach ($defaultMedications as $med) {
+            Medication::create([
+                'name' => $med['name'],
+                'notes' => $med['notes'],
+                'user_id' => $user->id,
+            ]);
+        }
     }
 }

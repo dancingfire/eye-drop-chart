@@ -22,12 +22,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/generate', [ChartController::class, 'generate'])->name('chart.generate');
     Route::post('/htmlchart', [ChartController::class, 'htmlchart'])->name('chart.htmlchart');
     
-    // Template routes
+    // Template routes (user-specific)
     Route::prefix('templates')->group(function () {
         Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
         Route::post('/', [TemplateController::class, 'store'])->name('templates.store');
         Route::get('/{id}', [TemplateController::class, 'show'])->name('templates.show');
         Route::delete('/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+    });
+    
+    // Medication management (all authenticated users)
+    Route::prefix('medications')->name('medications.')->group(function () {
+        Route::get('/', [MedicationController::class, 'index'])->name('index');
+        Route::get('/create', [MedicationController::class, 'create'])->name('create');
+        Route::post('/', [MedicationController::class, 'store'])->name('store');
+        Route::get('/{medication}/edit', [MedicationController::class, 'edit'])->name('edit');
+        Route::put('/{medication}', [MedicationController::class, 'update'])->name('update');
+        Route::delete('/{medication}', [MedicationController::class, 'destroy'])->name('destroy');
     });
     
     // Profile routes
@@ -36,17 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin routes - require superuser
+// Admin routes - require superuser (only user management now)
 Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\EnsureSuperuser::class])->group(function () {
-    // Medication management
-    Route::get('medications', [MedicationController::class, 'index'])->name('medications.index');
-    Route::get('medications/create', [MedicationController::class, 'create'])->name('medications.create');
-    Route::post('medications', [MedicationController::class, 'store'])->name('medications.store');
-    Route::get('medications/{medication}/edit', [MedicationController::class, 'edit'])->name('medications.edit');
-    Route::put('medications/{medication}', [MedicationController::class, 'update'])->name('medications.update');
-    Route::delete('medications/{medication}', [MedicationController::class, 'destroy'])->name('medications.destroy');
-    
-    // User management
+    // User management (superusers only)
     Route::resource('users', UserController::class)->except(['show']);
 });
 

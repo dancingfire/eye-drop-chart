@@ -29,19 +29,16 @@
                             <i class="bi bi-house-fill"></i> Dashboard
                         </a>
                     </li>
-                    @if(auth()->user()->is_superuser)
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-shield-fill-check"></i> Admin
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('medications.*') ? 'active' : '' }}" href="{{ route('medications.index') }}">
+                            <i class="bi bi-prescription2"></i> My Medications
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('users.index') }}">
-                                <i class="bi bi-people"></i> Users
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ route('medications.index') }}">
-                                <i class="bi bi-prescription2"></i> Medications
-                            </a></li>
-                        </ul>
+                    </li>
+                    @if(auth()->user()->is_superuser)
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                            <i class="bi bi-shield-fill-check"></i> Manage Users
+                        </a>
                     </li>
                     @endif
                 </ul>

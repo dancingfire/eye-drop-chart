@@ -9,7 +9,9 @@ class MedicationController extends Controller
 {
     public function index()
     {
-        $medications = Medication::orderBy('name')->get();
+        $medications = Medication::where('user_id', auth()->id())
+            ->orderBy('name')
+            ->get();
         return view('admin.medications.index', compact('medications'));
     }
 
@@ -25,17 +27,32 @@ class MedicationController extends Controller
             'notes' => 'nullable|string|max:255',
         ]);
 
-        Medication::create($request->only('name', 'notes'));
+        Medication::create([
+            'name' => $request->name,
+            'notes' => $request->notes,
+            'user_id' => auth()->id(),
+        ]);
+        
         return redirect()->route('medications.index')->with('success', 'Medication added.');
     }
 
     public function edit(Medication $medication)
     {
+        // Ensure user can only edit their own medications
+        if ($medication->user_id !== auth()->id()) {
+            abort(403, 'You can only edit your own medications.');
+        }
+        
         return view('admin.medications.edit', compact('medication'));
     }
 
     public function update(Request $request, Medication $medication)
     {
+        // Ensure user can only update their own medications
+        if ($medication->user_id !== auth()->id()) {
+            abort(403, 'You can only update your own medications.');
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'notes' => 'nullable|string|max:255',
@@ -47,6 +64,11 @@ class MedicationController extends Controller
 
     public function destroy(Medication $medication)
     {
+        // Ensure user can only delete their own medications
+        if ($medication->user_id !== auth()->id()) {
+            abort(403, 'You can only delete your own medications.');
+        }
+        
         $medication->delete();
         return redirect()->route('medications.index')->with('success', 'Medication deleted.');
     }

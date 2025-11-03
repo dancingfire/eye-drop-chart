@@ -10,7 +10,9 @@ class ChartController extends Controller
 {
     public function form()
     {
-        $medications = Medication::orderBy('name')->get();
+        $medications = Medication::where('user_id', auth()->id())
+            ->orderBy('name')
+            ->get();
         return view('chart.form', compact('medications'));
     }
 
