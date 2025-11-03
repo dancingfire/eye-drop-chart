@@ -10,12 +10,6 @@ if [ -f .env ]; then
     cp .env .env.backup
 fi
 
-# If .env doesn't exist, create from example
-if [ ! -f .env ]; then
-    echo "📝 Creating .env from .env.example..."
-    cp .env.example .env
-    echo "⚠️  WARNING: You need to configure .env with production settings!"
-fi
 # Cloudways Deployment Script
 # Add this to Application Settings → Deployment via Git → Deployment Script Path
 
