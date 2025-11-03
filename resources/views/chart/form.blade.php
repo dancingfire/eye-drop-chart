@@ -2,7 +2,7 @@
 @section('title','Eye Drop Chart Generator')
 @section('content')
 <div class="container py-5">
-  <h1 class="mb-4">Eye Drop Chart Generator</h1>
+  <h1 class="mb-4">DropTrack</h1>
 
   <!-- Template Section -->
   <div class="card mb-4">

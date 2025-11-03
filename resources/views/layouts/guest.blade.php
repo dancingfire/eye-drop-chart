@@ -16,9 +16,12 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <div class="text-center">
+                <a href="/" class="inline-block">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-20 w-auto mb-2">
+                    <div class="text-2xl font-semibold text-gray-800">
+                        {{ config('app.name', 'Eye Drop Chart') }}
+                    </div>
                 </a>
             </div>
 
