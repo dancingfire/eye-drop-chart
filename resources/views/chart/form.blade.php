@@ -2,15 +2,12 @@
 @section('title','Eye Drop Chart Generator')
 @section('content')
 <div class="container py-5">
-  <h1 class="mb-4">DropTrack</h1>
 
   <!-- Template Section -->
   <div class="card mb-4">
     <div class="card-body">
-      <h5 class="card-title">Templates</h5>
       <div class="row">
         <div class="col-md-8">
-          <label class="form-label">Load Template</label>
           <div class="input-group">
             <select id="template-select" class="form-select">
               <option value="">-- Select a template --</option>
