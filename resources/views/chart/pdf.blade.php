@@ -66,8 +66,11 @@ th {
 </style>
 </head>
 <body>
-<h2 style="text-align:center;">Eye Drop Chart - Southeast Wellness Pharmacy</h2>
+<h2 style="text-align:center;">Eye Drop Chart - Southeast Wellness Pharmacy [X = No Drops]</h2>
 <div style="text-align: center; margin-top: -15px">204-346-1970</div>
+@if($surgeryDate)
+<div style="text-align: center; margin-top: 5px; font-weight: bold;">Surgery Date: {{ $surgeryDate->format('l, F j, Y') }}</div>
+@endif
 
 @php
     $daysPerPage = 14;

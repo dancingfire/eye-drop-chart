@@ -34,6 +34,10 @@
         <label class="form-label">Start date</label>
         <input type="date" name="start_date" class="form-control" value="{{ old('start_date', \Carbon\Carbon::now()->toDateString()) }}" required>
       </div>
+      <div class="col-md-4">
+        <label class="form-label">Surgery date (optional)</label>
+        <input type="date" name="surgery_date" class="form-control" value="{{ old('surgery_date') }}">
+      </div>
     </div>
 
     <p>Build per-medication schedule:</p>
@@ -303,6 +307,8 @@ document.getElementById('delete-template-btn').addEventListener('click', functio
 
 // Helper: Get current schedule data from form
 function getCurrentScheduleData() {
+    const startDate = document.querySelector('input[name="start_date"]')?.value || '';
+    const surgeryDate = document.querySelector('input[name="surgery_date"]')?.value || '';
     const medications = [];
     const medDivs = document.querySelectorAll('.med-schedule');
     
@@ -331,17 +337,32 @@ function getCurrentScheduleData() {
         }
     });
     
-    return medications;
+    return {
+        start_date: startDate,
+        surgery_date: surgeryDate,
+        medications: medications
+    };
 }
 
 // Helper: Load schedule data into form
 function loadScheduleData(templateData) {
+    // Load dates if present
+    if (templateData.start_date) {
+        document.querySelector('input[name="start_date"]').value = templateData.start_date;
+    }
+    if (templateData.surgery_date) {
+        document.querySelector('input[name="surgery_date"]').value = templateData.surgery_date;
+    }
+    
     // Clear existing medications
     document.getElementById('med-container').innerHTML = '';
     medCount = 0;
     
+    // Support both old format (array of meds) and new format (object with medications array)
+    const medications = Array.isArray(templateData) ? templateData : (templateData.medications || []);
+    
     // Load each medication from template
-    templateData.forEach(medData => {
+    medications.forEach(medData => {
         // Add medication
         document.getElementById('add-med').click();
         

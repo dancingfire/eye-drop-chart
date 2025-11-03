@@ -17,6 +17,7 @@ class ChartController extends Controller
     public function generate(Request $request){
     $request->validate([
         'start_date'=>'required|date',
+        'surgery_date'=>'nullable|date',
         'medications'=>'required|array|max:4',
         'medications.*.id'=>'required|exists:medications,id',
         'medications.*.blocks'=>'required|array|min:1',
@@ -25,6 +26,7 @@ class ChartController extends Controller
     ]);
 
     $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+    $surgeryDate = $request->surgery_date ? \Carbon\Carbon::parse($request->surgery_date)->startOfDay() : null;
     $days = [];
     $maxDays = 0;
 
@@ -62,7 +64,8 @@ class ChartController extends Controller
     $pdf = \PDF::loadView('chart.pdf', [
         'meds'=>$meds,
         'days'=>$days,
-        'start'=>$start
+        'start'=>$start,
+        'surgeryDate'=>$surgeryDate
     ])->setPaper('letter','landscape');
 
     return $pdf->download('eye-drop-chart-'.$start->format('Ymd').'.pdf');
@@ -71,6 +74,7 @@ class ChartController extends Controller
 public function htmlchart(Request $request){
     $request->validate([
         'start_date'=>'required|date',
+        'surgery_date'=>'nullable|date',
         'medications'=>'required|array|max:4',
         'medications.*.id'=>'required|exists:medications,id',
         'medications.*.blocks'=>'required|array|min:1',
@@ -79,6 +83,7 @@ public function htmlchart(Request $request){
     ]);
 
     $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+    $surgeryDate = $request->surgery_date ? \Carbon\Carbon::parse($request->surgery_date)->startOfDay() : null;
     $days = [];
     $maxDays = 0;
 
@@ -116,7 +121,8 @@ public function htmlchart(Request $request){
     return view('chart.pdf', [
         'meds'=>$meds,
         'days'=>$days,
-        'start'=>$start
+        'start'=>$start,
+        'surgeryDate'=>$surgeryDate
     ]);
 }
 }
