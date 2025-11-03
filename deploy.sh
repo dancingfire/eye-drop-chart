@@ -10,18 +10,8 @@ if [ -f .env ]; then
     cp .env .env.backup
 fi
 
-# Cloudways Deployment Script
-# Add this to Application Settings → Deployment via Git → Deployment Script Path
-
-echo "🚀 Starting deployment..."
-
-# Backup .env file before git operations
-if [ -f .env ]; then
-    echo "💾 Backing up .env file..."
-    cp .env .env.backup
-fi
-
-# Install dependencies
+# If .env doesn't exist, create from example
+ Install dependencies
 echo "📦 Installing Composer dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
