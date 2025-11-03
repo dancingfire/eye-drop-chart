@@ -33,6 +33,11 @@ th, td {
     padding: 3px;
 }
 
+/* Thick border at the bottom of the last row of each medication */
+tr.med-last-row td {
+    border-bottom: 3px solid #000 !important;
+}
+
 th {
     background: #efefef;
 }
@@ -61,7 +66,8 @@ th {
 </style>
 </head>
 <body>
-<h2 style="text-align:center;">Eye Drop Chart</h2>
+<h2 style="text-align:center;">Eye Drop Chart - Southeast Wellness Pharmacy</h2>
+<div style="text-align: center; margin-top: -15px">204-346-1970</div>
 
 @php
     $daysPerPage = 14;
@@ -82,9 +88,9 @@ th {
         $hasActiveMeds = false;
         
         foreach($meds as $med) {
-            $totalWeeksForMed = count($med['weeks_schedule']);
+            $totalDaysForMed = count($med['days_schedule']);
             $medStart = \Carbon\Carbon::parse($med['start_date']);
-            $medEndDate = $medStart->copy()->addWeeks($totalWeeksForMed);
+            $medEndDate = $medStart->copy()->addDays($totalDaysForMed);
             
             if ($pageStartDate && $medEndDate->greaterThanOrEqualTo($pageStartDate)) {
                 $hasActiveMeds = true;
@@ -113,12 +119,12 @@ th {
             <tbody>
 @foreach($meds as $med)
     @php
-        $weeks = $med['weeks_schedule'];
+        $daysSchedule = $med['days_schedule'];
         $start = \Carbon\Carbon::parse($med['start_date']);
         
         // Check if this medication is active on this page
-        $totalWeeksForMed = count($weeks);
-        $medEndDate = $start->copy()->addWeeks($totalWeeksForMed);
+        $totalDaysForMed = count($daysSchedule);
+        $medEndDate = $start->copy()->addDays($totalDaysForMed);
         $pageStartDate = $pageDays[0] ?? null;
         
         // Skip this medication if it has ended before this page starts
@@ -126,44 +132,14 @@ th {
             continue;
         }
         
-        // Determine which doses are needed for days on THIS PAGE only
-        $dosesNeededOnThisPage = [];
-        foreach($pageDays as $day) {
-            $weekIndex = floor($start->diffInDays($day) / 7);
-            if (isset($weeks[$weekIndex])) {
-                $dosesThisWeek = $weeks[$weekIndex];
-                // Track which row indices are needed
-                // 1x: [0] = Morning
-                // 2x: [0,3] = Morning, Bedtime
-                // 3x: [0,2,3] = Morning, Supper, Bedtime
-                // 4x: [0,1,2,3] = Morning, Midday, Supper, Bedtime
-                if ($dosesThisWeek >= 4) {
-                    $dosesNeededOnThisPage = array_merge($dosesNeededOnThisPage, [0, 1, 2, 3]);
-                } elseif ($dosesThisWeek == 3) {
-                    $dosesNeededOnThisPage = array_merge($dosesNeededOnThisPage, [0, 2, 3]);
-                } elseif ($dosesThisWeek == 2) {
-                    $dosesNeededOnThisPage = array_merge($dosesNeededOnThisPage, [0, 3]);
-                } elseif ($dosesThisWeek == 1) {
-                    $dosesNeededOnThisPage = array_merge($dosesNeededOnThisPage, [0]);
-                }
-            }
-        }
-        $dosesNeededOnThisPage = array_unique($dosesNeededOnThisPage);
-        sort($dosesNeededOnThisPage);
-        
-        if (empty($dosesNeededOnThisPage)) {
-            continue; // Skip if no active doses on this page
-        }
-        
-        // Define labels for each row index
-        $allLabels = [0 => 'Morning', 1 => 'Midday', 2 => 'Supper', 3 => 'Bedtime'];
-        $rowCount = count($dosesNeededOnThisPage);
+        // Always show all 4 rows
+        $standardLabels = ['Morning', 'Midday', 'Supper', 'Bedtime'];
     @endphp
 
-    @foreach($dosesNeededOnThisPage as $displayIndex => $row)
-        <tr>
-            @if($displayIndex === 0)
-                <td class="med-name" rowspan="{{ $rowCount }}">
+    @for($row = 0; $row < 4; $row++)
+        <tr{!! $row === 3 ? ' class="med-last-row"' : '' !!}>
+            @if($row === 0)
+                <td class="med-name" rowspan="4">
                     {{ $med['name'] }}
                     @if($med['notes'])
                         <br><small style="font-weight:normal;">{{ $med['notes'] }}</small>
@@ -171,13 +147,13 @@ th {
                 </td>
             @endif
 
-            <td style="text-align:left; padding-left:8px; font-weight:bold; width:80px;">{{ $allLabels[$row] }}</td>
+            <td style="text-align:left; padding-left:8px; font-weight:bold; width:80px;">{{ $standardLabels[$row] }}</td>
 
             @foreach($pageDays as $day)
                 @php
-                    // Determine which "week" this day falls into
-                    $weekIndex = floor($start->diffInDays($day) / 7);
-                    $dosesThisWeek = $weeks[$weekIndex] ?? 0;
+                    // Determine which day index this day falls into (0-based)
+                    $dayIndex = $start->diffInDays($day);
+                    $dosesThisDay = $daysSchedule[$dayIndex] ?? 0;
 
                     // Determine if this row is active based on dose pattern:
                     // 1x: Morning (row 0)
@@ -185,13 +161,13 @@ th {
                     // 3x: Morning (row 0), Supper (row 2), Bedtime (row 3)
                     // 4x: all rows
                     $active = false;
-                    if ($dosesThisWeek >= 4) {
+                    if ($dosesThisDay >= 4) {
                         $active = true; // all 4 rows active
-                    } elseif ($dosesThisWeek == 3) {
+                    } elseif ($dosesThisDay == 3) {
                         $active = in_array($row, [0, 2, 3]); // Morning, Supper, Bedtime
-                    } elseif ($dosesThisWeek == 2) {
+                    } elseif ($dosesThisDay == 2) {
                         $active = in_array($row, [0, 3]); // Morning and Bedtime
-                    } elseif ($dosesThisWeek == 1) {
+                    } elseif ($dosesThisDay == 1) {
                         $active = ($row == 0); // Morning only
                     }
                 @endphp
@@ -203,7 +179,7 @@ th {
                 @endif
             @endforeach
         </tr>
-    @endforeach
+    @endfor
 @endforeach
 </tbody>
 

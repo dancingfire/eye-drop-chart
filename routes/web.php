@@ -17,3 +17,12 @@ Route::prefix('admin')->group(function () {
     Route::put('medications/{medication}', [MedicationController::class, 'update'])->name('medications.update');
     Route::delete('medications/{medication}', [MedicationController::class, 'destroy'])->name('medications.destroy');
 });
+
+use App\Http\Controllers\TemplateController;
+
+Route::prefix('templates')->group(function () {
+    Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
+    Route::post('/', [TemplateController::class, 'store'])->name('templates.store');
+    Route::get('/{id}', [TemplateController::class, 'show'])->name('templates.show');
+    Route::delete('/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+});

@@ -20,41 +20,41 @@ class ChartController extends Controller
         'medications'=>'required|array|max:4',
         'medications.*.id'=>'required|exists:medications,id',
         'medications.*.blocks'=>'required|array|min:1',
-        'medications.*.blocks.*.weeks'=>'required|integer|min:1',
+        'medications.*.blocks.*.days'=>'required|integer|min:1|max:70',
         'medications.*.blocks.*.doses'=>'required|integer|min:1|max:4',
     ]);
 
     $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
     $days = [];
-    $maxWeeks = 0;
+    $maxDays = 0;
 
-    // Determine total weeks to build top row
+    // Determine total days to build calendar
     foreach($request->medications as $med){
-        $weeksSum = array_sum(array_column($med['blocks'],'weeks'));
-        if($weeksSum>$maxWeeks) $maxWeeks=$weeksSum;
+        $daysSum = array_sum(array_column($med['blocks'],'days'));
+        if($daysSum>$maxDays) $maxDays=$daysSum;
     }
 
-    for($i=0;$i<$maxWeeks*7;$i++){
+    for($i=0;$i<$maxDays;$i++){
         $days[] = $start->copy()->addDays($i);
     }
 
-    // Build meds array with expanded weekly schedule
+    // Build meds array with expanded daily schedule
     $meds = [];
     foreach($request->medications as $medEntry){
         $med = Medication::find($medEntry['id']);
         if(!$med) continue;
 
-        $weeks_schedule = [];
+        $days_schedule = [];
         foreach($medEntry['blocks'] as $block){
-            for($w=0;$w<$block['weeks'];$w++){
-                $weeks_schedule[] = $block['doses'];
+            for($d=0;$d<$block['days'];$d++){
+                $days_schedule[] = $block['doses'];
             }
         }
 
         $meds[] = [
             'name'=>$med->name,
             'notes'=>$med->notes,
-            'weeks_schedule'=>$weeks_schedule,
+            'days_schedule'=>$days_schedule,
             'start_date'=>$start
         ];
     }
@@ -62,8 +62,7 @@ class ChartController extends Controller
     $pdf = \PDF::loadView('chart.pdf', [
         'meds'=>$meds,
         'days'=>$days,
-        'start'=>$start,
-        'weeks'=>$maxWeeks
+        'start'=>$start
     ])->setPaper('letter','landscape');
 
     return $pdf->download('eye-drop-chart-'.$start->format('Ymd').'.pdf');
