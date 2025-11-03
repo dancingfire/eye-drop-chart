@@ -38,6 +38,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'company_name' => ['nullable', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
             'logo' => ['nullable', 'image', 'max:2048'], // 2MB max
             'is_superuser' => ['boolean'],
         ]);
@@ -52,6 +53,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'company_name' => $request->company_name,
+            'phone_number' => $request->phone_number,
             'logo_path' => $logoPath,
             'is_superuser' => $request->boolean('is_superuser'),
         ]);
@@ -80,6 +82,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'company_name' => ['nullable', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
             'logo' => ['nullable', 'image', 'max:2048'],
             'is_superuser' => ['boolean'],
         ]);
@@ -88,6 +91,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'company_name' => $request->company_name,
+            'phone_number' => $request->phone_number,
             'is_superuser' => $request->boolean('is_superuser'),
         ];
 

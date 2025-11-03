@@ -68,7 +68,7 @@ th {
 <body>
 @php
     $companyName = $user->company_name ?? 'Southeast Wellness Pharmacy';
-    $companyPhone = '204-346-1970'; // Could also be a user field if needed
+    $companyPhone = $user->phone_number ?? '';
 @endphp
 
 @if($user->logo_path)
