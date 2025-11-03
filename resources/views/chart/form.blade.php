@@ -141,6 +141,7 @@ function addScheduleBlock(container){
         <div class="col-md-3">
             <select name="medications[${medIndex}][blocks][${blockCount}][doses]" class="form-select" required>
                 <option value="">Times/day</option>
+                <option value="0">0x daily (Not taking)</option>
                 <option value="1">1x daily (Morning)</option>
                 <option value="2">2x daily (Morning/Bedtime)</option>
                 <option value="3">3x daily (Morning/Supper/Bedtime)</option>
