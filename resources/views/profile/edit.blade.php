@@ -2,7 +2,6 @@
 @section('title', 'Profile')
 @section('content')
 <div class="container py-5">
-    <h1 class="mb-4">Profile Settings</h1>
 
     @if (session('status') === 'profile-updated')
         <div class="alert alert-success alert-dismissible fade show" role="alert">

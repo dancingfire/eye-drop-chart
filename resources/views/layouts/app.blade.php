@@ -29,7 +29,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                            <i class="bi bi-house-fill"></i> Dashboard
+                            <i class="bi bi-house-fill"></i> Print Labels
                         </a>
                     </li>
                     <li class="nav-item">
