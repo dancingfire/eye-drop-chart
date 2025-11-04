@@ -4,10 +4,14 @@
 <meta charset="utf-8">
 <title>Eye Drop Chart</title>
 <style>
+@page {
+    margin: 5mm 10mm 10mm 5mm; /* top right bottom left */
+}
+
 body {
     font-family: DejaVu Sans, Helvetica, Arial, sans-serif;
     font-size: 12px;
-    margin: 10px;
+    margin: 0;
 }
 
 /* Table styling */
@@ -38,6 +42,11 @@ tr.med-last-row td {
     border-bottom: 3px solid #000 !important;
 }
 
+/* Ensure STOP cells with rowspan also get thick bottom border */
+.stop-cell {
+    border-bottom: 3px solid #000 !important;
+}
+
 th {
     background: #efefef;
 }
@@ -54,6 +63,13 @@ th {
     font-size: 20px;
     padding: 2px 0;
     width: 50px;
+}
+
+.stop-vertical {
+    font-weight: bold;
+    font-size: 18px;
+    color: #d00;
+    line-height: 0.8;
 }
 
 /* Each 2-week segment = page */
@@ -163,11 +179,15 @@ th {
 
             <td style="text-align:left; padding-left:8px; font-weight:bold; width:80px;">{{ $standardLabels[$row] }}</td>
 
-            @foreach($pageDays as $day)
+            @foreach($pageDays as $dayKey => $day)
                 @php
                     // Determine which day index this day falls into (0-based)
                     $dayIndex = $start->diffInDays($day);
                     $dosesThisDay = $daysSchedule[$dayIndex] ?? 0;
+                    
+                    // Check if this is the first day where medication stops (doses go from >0 to 0)
+                    $previousDayDoses = ($dayIndex > 0) ? ($daysSchedule[$dayIndex - 1] ?? 0) : 1;
+                    $isStopDay = ($previousDayDoses > 0 && $dosesThisDay == 0);
 
                     // Determine if this row is active based on dose pattern:
                     // 1x: Morning (row 0)
@@ -188,6 +208,10 @@ th {
 
                 @if($active)
                     <td class="checkbox-cell">&nbsp;</td>
+                @elseif($isStopDay && $row === 0)
+                    <td class="checkbox-cell stop-cell" rowspan="4"><div class="stop-vertical">S<br>T<br>O<br>P</div></td>
+                @elseif($isStopDay && $row > 0)
+                    {{-- Skip cell, it's part of the rowspan from row 0 --}}
                 @else
                     <td class="checkbox-cell inactive">×</td>
                 @endif
