@@ -20,7 +20,7 @@ class ChartController extends Controller
     $request->validate([
         'start_date'=>'required|date',
         'surgery_date'=>'nullable|date',
-        'medications'=>'required|array|max:4',
+        'medications'=>'required|array',
         'medications.*.id'=>'required|exists:medications,id',
         'medications.*.blocks'=>'required|array|min:1',
         'medications.*.blocks.*.days'=>'required|integer|min:1|max:70',
@@ -78,7 +78,7 @@ public function htmlchart(Request $request){
     $request->validate([
         'start_date'=>'required|date',
         'surgery_date'=>'nullable|date',
-        'medications'=>'required|array|max:4',
+        'medications'=>'required|array',
         'medications.*.id'=>'required|exists:medications,id',
         'medications.*.blocks'=>'required|array|min:1',
         'medications.*.blocks.*.days'=>'required|integer|min:1|max:70',

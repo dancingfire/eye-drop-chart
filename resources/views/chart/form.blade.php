@@ -1,24 +1,24 @@
 @extends('layouts.app')
 @section('title','DropTrack')
 @section('content')
-<div class="container py-5">
+<div class="container py-5" style="max-width: 900px;">
 
   <!-- Template Section -->
   <div class="card mb-4">
     <div class="card-body">
       <div class="row">
-        <div class="col-md-8">
-          <div class="input-group">
-            <select id="template-select" class="form-select">
-              <option value="">-- Select a template --</option>
-            </select>
-            <button type="button" class="btn btn-outline-danger" id="delete-template-btn" style="display: none;" title="Delete Template">
-              <i class="bi bi-trash"></i> Delete
+        <div class="col-md-12">
+          <div class="d-flex gap-2 align-items-center">
+            <div class="flex-grow-1">
+              <select id="template-select" class="form-select">
+                <option value="">-- Select a template --</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-success" id="save-template-btn">Save template</button>
+            <button type="button" class="btn btn-link text-danger p-2" id="delete-template-btn" style="display: none;" title="Delete Template">
+              <i class="bi bi-trash fs-5"></i>
             </button>
           </div>
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-          <button type="button" class="btn btn-outline-success" id="save-template-btn">Save as Template</button>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Save as Template</h5>
+        <h5 class="modal-title">Save template</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -76,10 +76,29 @@
   </div>
 </div>
 
+@push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+@endpush
+
 @push('scripts')
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let medCount = 0;
-const maxMeds = 4;
+
+// Function to initialize Select2 on a medication select element
+function initSelect2(selectElement) {
+    $(selectElement).select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select medication --',
+        allowClear: true,
+        width: '100%'
+    });
+}
 
 // Function to update Generate button visibility
 function updateGenerateButtonVisibility() {
@@ -91,7 +110,6 @@ function updateGenerateButtonVisibility() {
 }
 
 document.getElementById('add-med').addEventListener('click', function(){
-    if(medCount >= maxMeds) return alert('Max 4 medications');
     medCount++;
 
     const medDiv = document.createElement('div');
@@ -117,6 +135,10 @@ document.getElementById('add-med').addEventListener('click', function(){
     `;
 
     document.getElementById('med-container').appendChild(medDiv);
+
+    // Initialize Select2 on the medication dropdown
+    const medSelect = medDiv.querySelector('select[name*="[id]"]');
+    initSelect2(medSelect);
 
     addScheduleBlock(medDiv.querySelector('.schedule-blocks'));
     
@@ -150,7 +172,7 @@ function addScheduleBlock(container){
             </select>
         </div>
         <div class="col-md-3">
-            <button type="button" class="btn btn-danger remove-block">Remove</button>
+            <button type="button" class="btn btn-danger btn-sm remove-block">Remove</button>
         </div>
     `;
     container.appendChild(blockDiv);
@@ -176,6 +198,40 @@ document.addEventListener('DOMContentLoaded', function(){
     // Initialize Bootstrap modal
     saveTemplateModal = new bootstrap.Modal(document.getElementById('saveTemplateModal'));
     
+    // Initialize Select2 on template dropdown
+    $('#template-select').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select a template --',
+        allowClear: true,
+        width: '100%'
+    });
+    
+    // Setup template change event listener (after Select2 is initialized)
+    $('#template-select').on('change', function(){
+        const templateId = this.value;
+        const deleteBtn = document.getElementById('delete-template-btn');
+        
+        if (!templateId) {
+            // Hide delete button when no template selected
+            deleteBtn.style.display = 'none';
+            return;
+        }
+        
+        // Show delete button
+        deleteBtn.style.display = 'block';
+        
+        // Auto-load the selected template
+        fetch(`/templates/${templateId}`)
+            .then(response => response.json())
+            .then(template => {
+                loadScheduleData(template.template_data);
+            })
+            .catch(error => {
+                console.error('Error loading template:', error);
+                alert('Failed to load template');
+            });
+    });
+    
     // Load templates
     loadTemplates();
 });
@@ -193,6 +249,8 @@ function loadTemplates() {
                 option.textContent = template.name + (template.description ? ' - ' + template.description : '');
                 select.appendChild(option);
             });
+            // Trigger Select2 to update with new options
+            $('#template-select').trigger('change.select2');
         });
 }
 
@@ -233,7 +291,6 @@ document.getElementById('save-template-confirm').addEventListener('click', funct
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Template saved successfully!');
             saveTemplateModal.hide();
             document.getElementById('template-name').value = '';
             document.getElementById('template-description').value = '';
@@ -243,31 +300,6 @@ document.getElementById('save-template-confirm').addEventListener('click', funct
     .catch(error => {
         alert('Error saving template: ' + error.message);
     });
-});
-
-// Auto-load template on selection
-document.getElementById('template-select').addEventListener('change', function(){
-    const templateId = this.value;
-    const deleteBtn = document.getElementById('delete-template-btn');
-    
-    if (!templateId) {
-        // Hide delete button when no template selected
-        deleteBtn.style.display = 'none';
-        return;
-    }
-    
-    // Show delete button
-    deleteBtn.style.display = 'block';
-    
-    // Auto-load the selected template
-    fetch(`/templates/${templateId}`)
-        .then(response => response.json())
-        .then(template => {
-            loadScheduleData(template.template_data);
-        })
-        .catch(error => {
-            alert('Error loading template: ' + error.message);
-        });
 });
 
 // Delete Template Button
@@ -293,7 +325,16 @@ document.getElementById('delete-template-btn').addEventListener('click', functio
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Template deleted successfully!');
+            // Clear the form
+            document.getElementById('med-container').innerHTML = '';
+            medCount = 0;
+            updateGenerateButtonVisibility();
+            
+            // Reset template selection
+            $('#template-select').val('').trigger('change');
+            document.getElementById('delete-template-btn').style.display = 'none';
+            
+            // Reload template list
             loadTemplates();
         }
     })
@@ -366,6 +407,7 @@ function loadScheduleData(templateData) {
         const medDiv = document.querySelector(`.med-schedule[data-med-index="${medCount-1}"]`);
         const medSelect = medDiv.querySelector('select[name^="medications"][name$="[id]"]');
         medSelect.value = medData.id;
+        $(medSelect).trigger('change'); // Trigger Select2 to update
         
         // Clear default block
         const scheduleBlocks = medDiv.querySelector('.schedule-blocks');

@@ -186,8 +186,9 @@ th {
                     $dosesThisDay = $daysSchedule[$dayIndex] ?? 0;
                     
                     // Check if this is the first day where medication stops (doses go from >0 to 0)
-                    $previousDayDoses = ($dayIndex > 0) ? ($daysSchedule[$dayIndex - 1] ?? 0) : 1;
-                    $isStopDay = ($previousDayDoses > 0 && $dosesThisDay == 0);
+                    // Don't show STOP if medication starts with 0 doses
+                    $previousDayDoses = ($dayIndex > 0) ? ($daysSchedule[$dayIndex - 1] ?? 0) : ($daysSchedule[0] ?? 0);
+                    $isStopDay = ($previousDayDoses > 0 && $dosesThisDay == 0 && $dayIndex > 0);
 
                     // Determine if this row is active based on dose pattern:
                     // 1x: Morning (row 0)
