@@ -88,7 +88,7 @@
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Update User</button>
+                    <button type="submit" class="btn btn-dark">Update User</button>
                 </div>
             </form>
         </div>

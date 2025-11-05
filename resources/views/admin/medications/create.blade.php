@@ -13,7 +13,7 @@
             <label class="form-label">Notes</label>
             <input type="text" name="notes" class="form-control" value="{{ old('notes') }}">
         </div>
-        <button type="submit" class="btn btn-success">Add</button>
+        <button type="submit" class="btn btn-dark">Add</button>
         <a href="{{ route('medications.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>

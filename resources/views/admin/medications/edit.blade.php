@@ -14,7 +14,7 @@
             <label class="form-label">Notes</label>
             <input type="text" name="notes" class="form-control" value="{{ old('notes', $medication->notes) }}">
         </div>
-        <button type="submit" class="btn btn-success">Update</button>
+        <button type="submit" class="btn btn-dark">Update</button>
         <a href="{{ route('medications.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>

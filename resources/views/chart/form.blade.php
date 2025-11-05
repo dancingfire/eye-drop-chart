@@ -14,7 +14,7 @@
                 <option value="">-- Select a template --</option>
               </select>
             </div>
-            <button type="button" class="btn btn-success" id="save-template-btn">Save template</button>
+            <button type="button" class="btn btn-outline-secondary" id="save-template-btn">Save template</button>
             <button type="button" class="btn btn-link text-danger p-2" id="delete-template-btn" style="display: none;" title="Delete Template">
               <i class="bi bi-trash fs-5"></i>
             </button>
@@ -42,10 +42,10 @@
     <div id="med-container"></div>
 
     <div class="text-end mb-3">
-      <button type="button" class="btn btn-success" id="add-med">+ Add Medication</button>
+      <button type="button" class="btn btn-outline-secondary" id="add-med">+ Add Medication</button>
     </div>
     <div id="generate-buttons" style="display: none;">
-      <button class="btn btn-primary" type="submit">Generate PDF chart</button>
+      <button class="btn btn-dark" type="submit">Generate PDF chart</button>
     </div>
   </form>
 </div>
@@ -70,7 +70,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="save-template-confirm">Save Template</button>
+        <button type="button" class="btn btn-dark" id="save-template-confirm">Save Template</button>
       </div>
     </div>
   </div>
@@ -127,11 +127,11 @@ document.getElementById('add-med').addEventListener('click', function(){
                 </select>
             </div>
             <div class="col-md-6 text-end">
-                <button type="button" class="btn btn-danger btn-sm remove-med">Remove Medication</button>
+                <button type="button" class="btn btn-outline-danger btn-sm remove-med">Remove</button>
             </div>
         </div>
         <div class="schedule-blocks" data-med-index="${medCount-1}"></div>
-        <button type="button" class="btn btn-outline-primary add-schedule">And then...</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm add-schedule">And then...</button>
     `;
 
     document.getElementById('med-container').appendChild(medDiv);
@@ -172,7 +172,7 @@ function addScheduleBlock(container){
             </select>
         </div>
         <div class="col-md-3">
-            <button type="button" class="btn btn-danger btn-sm remove-block">Remove</button>
+            <button type="button" class="btn btn-outline-danger btn-sm remove-block">Remove</button>
         </div>
     `;
     container.appendChild(blockDiv);

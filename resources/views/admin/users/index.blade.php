@@ -4,7 +4,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>User Management</h1>
-        <a href="{{ route('users.create') }}" class="btn btn-success">+ Add User</a>
+        <a href="{{ route('users.create') }}" class="btn btn-dark">+ Add User</a>
     </div>
 
     @if(session('success'))
@@ -55,12 +55,12 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
                                 @if($user->id !== auth()->id())
                                     <form action="{{ route('users.destroy', $user) }}" method="POST" style="display: inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
                                     </form>
                                 @endif
                             </td>
