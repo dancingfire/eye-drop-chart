@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
         Route::post('/', [TemplateController::class, 'store'])->name('templates.store');
         Route::get('/{id}', [TemplateController::class, 'show'])->name('templates.show');
+        Route::put('/{id}', [TemplateController::class, 'update'])->name('templates.update');
         Route::delete('/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
     });
     

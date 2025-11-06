@@ -44,6 +44,30 @@ class TemplateController extends Controller
         return response()->json($template);
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'template_data' => 'required|array',
+        ]);
+
+        $template = ScheduleTemplate::where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        $template->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'template_data' => $request->template_data,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Template updated successfully',
+            'template' => $template
+        ]);
+    }
+
     public function destroy($id)
     {
         $template = ScheduleTemplate::where('user_id', auth()->id())

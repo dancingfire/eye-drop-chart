@@ -15,6 +15,7 @@
               </select>
             </div>
             <button type="button" class="btn btn-outline-secondary" id="save-template-btn">Save template</button>
+            <button type="button" class="btn btn-outline-secondary" id="update-template-btn" style="display: none;">Update template</button>
             <button type="button" class="btn btn-link text-danger p-2" id="delete-template-btn" style="display: none;" title="Delete Template">
               <i class="bi bi-trash fs-5"></i>
             </button>
@@ -109,6 +110,59 @@ function updateGenerateButtonVisibility() {
     generateButtons.style.display = hasMeds ? 'block' : 'none';
 }
 
+// Function to reindex medications after reordering
+function reindexMedications() {
+    const medContainer = document.getElementById('med-container');
+    const medDivs = medContainer.querySelectorAll('.med-schedule');
+    
+    medDivs.forEach((medDiv, index) => {
+        medDiv.dataset.medIndex = index;
+        
+        // Update medication select name
+        const medSelect = medDiv.querySelector('select[name^="medications"][name$="[id]"]');
+        if (medSelect) {
+            medSelect.name = `medications[${index}][id]`;
+        }
+        
+        // Update schedule blocks
+        const scheduleBlocks = medDiv.querySelector('.schedule-blocks');
+        if (scheduleBlocks) {
+            scheduleBlocks.dataset.medIndex = index;
+            
+            const blockDivs = scheduleBlocks.querySelectorAll('.schedule-block');
+            blockDivs.forEach((blockDiv, blockIndex) => {
+                const daysInput = blockDiv.querySelector('input[name*="[days]"]');
+                const dosesSelect = blockDiv.querySelector('select[name*="[doses]"]');
+                
+                if (daysInput) {
+                    daysInput.name = `medications[${index}][blocks][${blockIndex}][days]`;
+                }
+                if (dosesSelect) {
+                    dosesSelect.name = `medications[${index}][blocks][${blockIndex}][doses]`;
+                }
+            });
+        }
+    });
+}
+
+// Function to enable/disable move up/down buttons based on position
+function updateMoveButtonsState() {
+    const medContainer = document.getElementById('med-container');
+    const medDivs = medContainer.querySelectorAll('.med-schedule');
+    
+    medDivs.forEach((medDiv, index) => {
+        const moveUpBtn = medDiv.querySelector('.move-up');
+        const moveDownBtn = medDiv.querySelector('.move-down');
+        
+        if (moveUpBtn) {
+            moveUpBtn.disabled = (index === 0);
+        }
+        if (moveDownBtn) {
+            moveDownBtn.disabled = (index === medDivs.length - 1);
+        }
+    });
+}
+
 document.getElementById('add-med').addEventListener('click', function(){
     medCount++;
 
@@ -127,6 +181,12 @@ document.getElementById('add-med').addEventListener('click', function(){
                 </select>
             </div>
             <div class="col-md-6 text-end">
+                <button type="button" class="btn btn-outline-secondary btn-sm move-up" title="Move Up">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm move-down" title="Move Down">
+                    <i class="bi bi-arrow-down"></i>
+                </button>
                 <button type="button" class="btn btn-outline-danger btn-sm remove-med">Remove</button>
             </div>
         </div>
@@ -146,9 +206,33 @@ document.getElementById('add-med').addEventListener('click', function(){
     medDiv.querySelector('.remove-med').addEventListener('click', function(){
         medDiv.remove();
         updateGenerateButtonVisibility();
+        updateMoveButtonsState();
+    });
+    
+    // Add move up handler
+    medDiv.querySelector('.move-up').addEventListener('click', function(){
+        const container = document.getElementById('med-container');
+        const prevSibling = medDiv.previousElementSibling;
+        if (prevSibling) {
+            container.insertBefore(medDiv, prevSibling);
+            reindexMedications();
+            updateMoveButtonsState();
+        }
+    });
+    
+    // Add move down handler
+    medDiv.querySelector('.move-down').addEventListener('click', function(){
+        const container = document.getElementById('med-container');
+        const nextSibling = medDiv.nextElementSibling;
+        if (nextSibling) {
+            container.insertBefore(nextSibling, medDiv);
+            reindexMedications();
+            updateMoveButtonsState();
+        }
     });
     
     updateGenerateButtonVisibility();
+    updateMoveButtonsState();
 });
 
 function addScheduleBlock(container){
@@ -193,6 +277,7 @@ document.addEventListener('click', function(e){
 // Template Management
 let templates = [];
 let saveTemplateModal;
+let currentTemplateId = null; // Track currently loaded template
 
 document.addEventListener('DOMContentLoaded', function(){
     // Initialize Bootstrap modal
@@ -210,15 +295,20 @@ document.addEventListener('DOMContentLoaded', function(){
     $('#template-select').on('change', function(){
         const templateId = this.value;
         const deleteBtn = document.getElementById('delete-template-btn');
+        const updateBtn = document.getElementById('update-template-btn');
         
         if (!templateId) {
-            // Hide delete button when no template selected
+            // Hide delete and update buttons when no template selected
             deleteBtn.style.display = 'none';
+            updateBtn.style.display = 'none';
+            currentTemplateId = null;
             return;
         }
         
-        // Show delete button
+        // Show delete and update buttons
         deleteBtn.style.display = 'block';
+        updateBtn.style.display = 'block';
+        currentTemplateId = templateId;
         
         // Auto-load the selected template
         fetch(`/templates/${templateId}`)
@@ -302,6 +392,55 @@ document.getElementById('save-template-confirm').addEventListener('click', funct
     });
 });
 
+// Update Template Button
+document.getElementById('update-template-btn').addEventListener('click', function(){
+    if (!currentTemplateId) {
+        alert('No template selected.');
+        return;
+    }
+    
+    const scheduleData = getCurrentScheduleData();
+    if (!scheduleData || scheduleData.medications.length === 0) {
+        alert('Please add at least one medication schedule before updating the template.');
+        return;
+    }
+    
+    // Get current template details
+    const selectedOption = document.getElementById('template-select').selectedOptions[0];
+    const currentTemplate = templates.find(t => t.id == currentTemplateId);
+    
+    if (!currentTemplate) {
+        alert('Template not found.');
+        return;
+    }
+    
+    if (!confirm(`Update template "${currentTemplate.name}" with the current schedule?`)) {
+        return;
+    }
+    
+    fetch(`/templates/${currentTemplateId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            name: currentTemplate.name,
+            description: currentTemplate.description,
+            template_data: scheduleData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadTemplates();
+        }
+    })
+    .catch(error => {
+        alert('Error updating template: ' + error.message);
+    });
+});
+
 // Delete Template Button
 document.getElementById('delete-template-btn').addEventListener('click', function(){
     const templateId = document.getElementById('template-select').value;
@@ -333,6 +472,8 @@ document.getElementById('delete-template-btn').addEventListener('click', functio
             // Reset template selection
             $('#template-select').val('').trigger('change');
             document.getElementById('delete-template-btn').style.display = 'none';
+            document.getElementById('update-template-btn').style.display = 'none';
+            currentTemplateId = null;
             
             // Reload template list
             loadTemplates();
@@ -429,6 +570,7 @@ function loadScheduleData(templateData) {
     
     // Update generate button visibility after loading template
     updateGenerateButtonVisibility();
+    updateMoveButtonsState();
 }
 </script>
 @endpush
