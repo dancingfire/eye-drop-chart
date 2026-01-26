@@ -5,6 +5,7 @@ use App\Http\Controllers\ChartController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuditController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard (login if not authenticated)
@@ -51,6 +52,9 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\EnsureSuperuser::class])->group(function () {
     // User management (superusers only)
     Route::resource('users', UserController::class)->except(['show']);
+    
+    // Chart generation audit
+    Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
 });
 
 require __DIR__.'/auth.php';

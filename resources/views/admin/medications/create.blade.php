@@ -7,7 +7,7 @@
         @csrf
         <div class="mb-3">
             <label class="form-label">Name</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required autofocus>
         </div>
         <div class="mb-3">
             <label class="form-label">Notes</label>

@@ -50,4 +50,9 @@ class User extends Authenticatable
             'is_superuser' => 'boolean',
         ];
     }
+
+    public function chartGenerations()
+    {
+        return $this->hasMany(ChartGeneration::class);
+    }
 }

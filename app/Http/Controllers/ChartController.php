@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Medication;
+use App\Models\ChartGeneration;
 use PDF; // alias for Barryvdh\DomPDF\Facade\Pdf, ensure alias or use \Barryvdh\DomPDF\Facade\Pdf
 
 class ChartController extends Controller
@@ -71,6 +72,16 @@ class ChartController extends Controller
         'user'=>auth()->user()
     ])->setPaper('letter','landscape');
 
+    // Log chart generation
+    ChartGeneration::create([
+        'user_id' => auth()->id(),
+        'start_date' => $start,
+        'surgery_date' => $surgeryDate,
+        'medication_count' => count($meds),
+        'total_days' => $maxDays,
+        'format' => 'pdf',
+    ]);
+
     return $pdf->download('eye-drop-chart-'.$start->format('Ymd').'.pdf');
 }
 
@@ -120,6 +131,16 @@ public function htmlchart(Request $request){
             'start_date'=>$start
         ];
     }
+
+    // Log chart generation
+    ChartGeneration::create([
+        'user_id' => auth()->id(),
+        'start_date' => $start,
+        'surgery_date' => $surgeryDate,
+        'medication_count' => count($meds),
+        'total_days' => $maxDays,
+        'format' => 'html',
+    ]);
 
     return view('chart.pdf', [
         'meds'=>$meds,

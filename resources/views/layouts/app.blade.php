@@ -43,6 +43,11 @@
                             <i class="bi bi-shield-fill-check"></i> Manage Users
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('audit.*') ? 'active' : '' }}" href="{{ route('audit.index') }}">
+                            <i class="bi bi-graph-up"></i> Chart Audit
+                        </a>
+                    </li>
                     @endif
                 </ul>
                 <ul class="navbar-nav">
