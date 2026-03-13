@@ -47,6 +47,9 @@
     </div>
     <div id="generate-buttons" style="display: none;">
       <button class="btn btn-dark" type="submit">Generate PDF chart</button>
+      @if(auth()->user()->is_superuser)
+      <button class="btn btn-outline-secondary" type="submit" formaction="{{ route('chart.htmlchart') }}">Preview HTML</button>
+      @endif
     </div>
   </form>
 </div>

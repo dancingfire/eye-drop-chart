@@ -1,3 +1,20 @@
+@php
+$crosshatchStyle = '';
+if (function_exists('imagecreate')) {
+    $size = 8;
+    $img = imagecreate($size, $size);
+    $bg = imagecolorallocate($img, 240, 240, 240);
+    $ln = imagecolorallocate($img, 153, 153, 153);
+    imageline($img, 0, 0, $size - 1, $size - 1, $ln);
+    imageline($img, $size - 1, 0, 0, $size - 1, $ln);
+    ob_start();
+    imagepng($img);
+    $pngData = ob_get_clean();
+    imagedestroy($img);
+    $uri = 'data:image/png;base64,' . base64_encode($pngData);
+    $crosshatchStyle = "background-image:url('{$uri}');background-repeat:repeat;background-color:#f0f0f0;";
+}
+@endphp
 <!doctype html>
 <html>
 <head>
@@ -65,6 +82,14 @@ th {
     width: 50px;
 }
 
+.inactive {
+    background-color: #f0f0f0;
+    background-image:
+        repeating-linear-gradient(45deg, #999 0, #999 1px, transparent 0, transparent 50%),
+        repeating-linear-gradient(-45deg, #999 0, #999 1px, transparent 0, transparent 50%);
+    background-size: 8px 8px;
+}
+
 .stop-vertical {
     font-weight: bold;
     font-size: 18px;
@@ -93,7 +118,7 @@ th {
 </div>
 @endif
 
-<h2 style="text-align:center;">Eye Drop Chart - {{ $companyName }} [X = No Drops]</h2>
+<h2 style="text-align:center;">Eye Drop Chart - {{ $companyName }} [shaded = No Drops]</h2>
 <div style="text-align: center; margin-top: -15px">{{ $companyPhone }}</div>
 @if($surgeryDate)
 <div style="text-align: center; margin-top: 5px; font-weight: bold;">Surgery Date: {{ $surgeryDate->format('l, F j, Y') }}</div>
@@ -210,11 +235,11 @@ th {
                 @if($active)
                     <td class="checkbox-cell">&nbsp;</td>
                 @elseif($isStopDay && $row === 0)
-                    <td class="checkbox-cell stop-cell" rowspan="4"><div class="stop-vertical">S<br>T<br>O<br>P</div></td>
+                    <td class="checkbox-cell stop-cell inactive" rowspan="4" style="{{ $crosshatchStyle }}"><div class="stop-vertical">S<br>T<br>O<br>P</div></td>
                 @elseif($isStopDay && $row > 0)
                     {{-- Skip cell, it's part of the rowspan from row 0 --}}
                 @else
-                    <td class="checkbox-cell inactive">×</td>
+                    <td class="checkbox-cell inactive" style="{{ $crosshatchStyle }}"></td>
                 @endif
             @endforeach
         </tr>
